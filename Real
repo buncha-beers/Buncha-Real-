@@ -1,0 +1,226 @@
+{
+  "name": "buncha-beers",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "framer-motion": "11.0.8",
+    "lucide-react": "0.441.0"
+  }
+}
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  experimental: { esmExternals: true }
+};
+export default nextConfig;
+:root {
+  --bg:#0b0b0c; --card:#141417; --text:#f6f6f7; --muted:#a3a3ac;
+  --accent:#F9B233; --accent2:#06b6d4;
+}
+*{box-sizing:border-box}
+html,body,#__next{height:100%}
+body{
+  margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  color:var(--text);
+  background:radial-gradient(1200px 800px at 20% -10%, #1b1b20 0%, #0b0b0c 60%);
+}
+.container{max-width:1100px;margin:0 auto;padding:32px 20px 48px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo span{font-weight:800;letter-spacing:.5px;font-size:22px}
+.badge{padding:6px 10px;border-radius:999px;background:#1f1f24;color:var(--muted);font-size:12px;border:1px solid #2b2b31}
+.card{background:linear-gradient(180deg,#15151a 0%,#0f0f13 100%);border:1px solid #24242a;border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.controls{display:grid;gap:16px;grid-template-columns:1fr}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.input,.select,.textarea,.button{border-radius:12px;border:1px solid #2b2b31;background:#131318;color:var(--text);padding:12px 14px;font-size:14px}
+.select{appearance:none}
+.textarea{min-height:96px;resize:vertical}
+.button{cursor:pointer;font-weight:700;letter-spacing:.3px;background:linear-gradient(180deg,#F9B233,#c98505);border:none;color:#2a1900;box-shadow:0 6px 18px rgba(249,178,51,.35)}
+.button.secondary{background:#16161b;color:var(--muted);border:1px solid #2b2b31;box-shadow:none}
+.toggle{display:flex;gap:10px;background:#141419;border:1px solid #24242a;border-radius:12px;padding:6px}
+.toggle button{flex:1;padding:10px 12px;border-radius:8px;background:transparent;color:var(--muted);border:none;cursor:pointer}
+.toggle button.active{background:#1d1d23;color:var(--text);border:1px solid #2b2b31}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
+.preview{display:flex;align-items:center;justify-content:center;aspect-ratio:9/16;border-radius:16px;background:#0c0c10 url('/stub-bg.png') center/cover no-repeat;border:1px dashed #2b2b31;color:var(--muted);font-weight:600}
+.footer{color:var(--muted);font-size:12px;margin-top:24px;text-align:center}
+.neon{text-shadow:0 0 8px rgba(6,182,212,.8),0 0 20px rgba(6,182,212,.35);color:#e6fbff}
+import type { AppProps } from 'next/app';
+import '../styles/globals.css';
+export default function App({ Component, pageProps }: AppProps) {
+  return <Component {...pageProps} />;
+}
+import type { AppProps } from 'next/app';
+import '../styles/globals.css';
+export default function App({ Component, pageProps }: AppProps) {
+  return <Component {...pageProps} />;
+}
+import Head from 'next/head';
+import Generator from '../components/Generator';
+
+export default function Home() {
+  return (
+    <>
+      <Head>
+        <title>Buncha Beers Pod — Generator</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <main className="container">
+        <header className="header">
+          <div className="logo">
+            <img src="/logo.svg" width="28" height="28" alt="logo"/>
+            <span>Buncha Beers Pod</span>
+          </div>
+          <span className="badge">Private Preview</span>
+        </header>
+        <Generator/>
+      </main>
+    </>
+  );
+}
+'use client';
+import React from 'react';
+import { Beer, Sparkles, ShieldAlert, Zap, UserPlus } from 'lucide-react';
+
+type Mode = 'realistic' | 'animated';
+
+export default function Generator(){
+  const [topic, setTopic] = React.useState('Is cancel culture real or just internet hangovers?');
+  const [mode, setMode] = React.useState<Mode>('animated');
+  const [chaos, setChaos] = React.useState('');
+  const [length, setLength] = React.useState('60-90s');
+  const [generating, setGenerating] = React.useState(false);
+  const [script, setScript] = React.useState<string>('');
+  const [status, setStatus] = React.useState<string>('Ready.');
+
+  async function handleGenerate(){
+    setGenerating(true);
+    setStatus('Writing bar-talk script...');
+    try{
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ topic, mode, chaos, length })
+      });
+      const data = await res.json();
+      setScript(data.script || 'No script returned');
+      setStatus('Script ready. (Stub preview only — wire providers to render audio/video)');
+    }catch(e){
+      console.error(e);
+      setStatus('Error generating. Check server logs.');
+    }finally{
+      setGenerating(false);
+    }
+  }
+
+  function Surprise(){
+    const seeds = [
+      'Top 3 worst conspiracy theories at the bar',
+      'Aliens vs. Beer: which built the pyramids?',
+      'Is the algorithm gaslighting us?',
+      'Should Bigfoot have a podcast?',
+      'Draft vs. canned: the real culture war'
+    ];
+    setTopic(seeds[Math.floor(Math.random()*seeds.length)]);
+  }
+
+  return (
+    <div className="card">
+      <div className="controls">
+        <div className="row" style={{alignItems:'center', justifyContent:'space-between'}}>
+          <div style={{display:'flex', gap:10, alignItems:'center'}}>
+            <Beer size={18} color="#F9B233"/><b>Buncha Beers Generator</b>
+          </div>
+          <span className="badge"><ShieldAlert size={14} style={{marginRight:6}}/> Private</span>
+        </div>
+
+        <label>Topic</label>
+        <textarea className="textarea" value={topic} onChange={e=>setTopic(e.target.value)} placeholder="Type your hot take..."/>
+
+        <div className="row">
+          <div className="toggle" role="tablist" aria-label="Mode">
+            <button className={mode==='animated'?'active':''} onClick={()=>setMode('animated')}>Animated</button>
+            <button className={mode==='realistic'?'active':''} onClick={()=>setMode('realistic')}>Realistic</button>
+          </div>
+          <select className="select" value={length} onChange={e=>setLength(e.target.value)}>
+            <option>30–45s</option>
+            <option>60-90s</option>
+          </select>
+          <button className="button secondary" type="button" onClick={Surprise}><Sparkles size={16}/> Surprise me</button>
+        </div>
+
+        <label>Optional chaos (e.g., “asteroid hits at the end”)</label>
+        <input className="input" value={chaos} onChange={e=>setChaos(e.target.value)} placeholder="Describe a weird twist to include…"/>
+
+        <div className="grid">
+          <div className="preview">
+            <div style={{textAlign:'center'}}>
+              <div className="neon" style={{fontSize:18, marginBottom:6}}>BunchaBeersPod</div>
+              <div style={{opacity:0.8}}>Preview area (toggle Animated / Realistic)</div>
+            </div>
+          </div>
+          <div>
+            <div className="card" style={{background:'transparent', border:'1px dashed #2b2b31'}}>
+              <b>Output (script)</b>
+              <pre style={{whiteSpace:'pre-wrap', marginTop:8}}>{script || 'Your generated script will appear here.'}</pre>
+            </div>
+            <div className="row" style={{marginTop:12, justifyContent:'space-between'}}>
+              <span style={{color:'#a3a3ac'}}>{status}</span>
+              <button className="button" disabled={generating} onClick={handleGenerate}>
+                <Zap size={16} style={{marginRight:6}}/> {generating? 'Generating…' : 'Generate'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="footer">
+          Guests coming soon <UserPlus size={12}/> • Chaos FX in Phase 3 • Long-form in Phase 4
+        </div>
+      </div>
+    </div>
+  );
+}
+import type { NextApiRequest, NextApiResponse } from 'next';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { topic, mode, chaos, length } = req.body || {};
+  const lines = [
+    `Chad: Bro… ${topic || 'beer talk'} literally tastes like freedom and bad decisions.`,
+    `Ronnie: You can’t just say that, Chad. There’s data. Somewhere.`,
+    `Chad: Pretty sure I saw it on a coaster.`,
+    chaos ? `*Chaos Trigger*: ${chaos}` : `*Button taps, neon sign buzzes*`,
+    `Ronnie: Anyway, ${mode==='realistic'?'why does your face look so human today?':'why are we cartoons again?'}`,
+    `Narrator: End of ${length || '60-90s'} preview. Post it.`
+  ];
+  res.status(200).json({ script: lines.join('\n') });
+}
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <rect width="256" height="256" rx="48" fill="#111217"/>
+  <g transform="translate(42,40)">
+    <rect x="64" y="24" width="74" height="96" rx="12" fill="#F9B233" stroke="#c98505" stroke-width="4"/>
+    <rect x="74" y="34" width="54" height="76" rx="6" fill="#ffe6b8" opacity="0.55"/>
+    <rect x="76" y="112" width="50" height="12" rx="6" fill="#c98505"/>
+    <rect x="56" y="110" width="10" height="30" rx="5" fill="#F9B233"/>
+    <rect x="138" y="110" width="10" height="30" rx="5" fill="#F9B233"/>
+    <circle cx="32" cy="116" r="18" fill="#06b6d4"/>
+    <rect x="20" y="120" width="24" height="8" rx="4" fill="#0b0b0c"/>
+  </g>
+</svg>
+# Buncha Beers — Private Generator (Preview)
+
+## Local
+npm install
+npm run dev
+# open http://localhost:3000
+
+## Deploy on Vercel
+- Push this repo to GitHub
+- Go to https://vercel.com/new → Import the repo → Deploy
